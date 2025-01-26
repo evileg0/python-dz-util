@@ -5,21 +5,21 @@ from funker import *
 parser = argparse.ArgumentParser()
 subparsers = parser.add_subparsers(dest="command")
 
-# Subparser копирования файла
+# Subparser for file copy
 parser_copy = subparsers.add_parser('copy', help="Copy file <from> to <destanation>")
 parser_copy.add_argument('filename', type=str, help="Source file")
 parser_copy.add_argument('destanation', type=str, help="Destanation folder")
 
-# Subparser удаления файла
+# Subparser for removing file
 parser_del = subparsers.add_parser('del', help="Delete file")
 parser_del.add_argument('filename', type=str, help="File name")
 
-# Subparser подсчета файлов
+# Subparser for file counter
 parser_count = subparsers.add_parser('count', help="Count files in directory")
 parser_count.add_argument('folder', type=str, help="Folder name")
 parser_count.add_argument('-r', '--recursive', action='store_true', help="Count files recursively")
 
-# Subparser поиска фалов по регулярному выражению
+# Subparser for serching files by regexp
 parser_search = subparsers.add_parser('search', help="Search for files by regex pattern")
 parser_search.add_argument('folder', type=str, help="Folder name")
 parser_search.add_argument('pattern', type=str, help="Regex pattern to match file names")
@@ -33,7 +33,7 @@ parser_add_date.add_argument('-r', '--recursive', action='store_true', help="Pro
 parser_analyse = subparsers.add_parser('analyse', help="Analyse folder sizes")
 parser_analyse.add_argument('folder', type=str, help="Folder name")
 
-# Subparser генерации тестового набора файлов и папок
+# Subparser for test data generation
 parser_gen = subparsers.add_parser('gentest', help="Generate test data in a folder")
 parser_gen.add_argument('folder', type=str, help="Folder name")
 parser_gen.add_argument('--count', type=int, default=5, help="Number of folders to create")
