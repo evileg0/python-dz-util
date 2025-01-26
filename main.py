@@ -5,26 +5,35 @@ from funker import *
 parser = argparse.ArgumentParser()
 subparsers = parser.add_subparsers(dest="command")
 
-# Сабпарсер копирования файла
+# Subparser копирования файла
 parser_copy = subparsers.add_parser('copy', help="Copy file <from> to <destanation>")
 parser_copy.add_argument('filename', type=str, help="Source file")
 parser_copy.add_argument('destanation', type=str, help="Destanation folder")
 
-# Сабпарсер удаления файла
+# Subparser удаления файла
 parser_del = subparsers.add_parser('del', help="Delete file")
 parser_del.add_argument('filename', type=str, help="File name")
 
-# Сабпарсер подсчета файлов
+# Subparser подсчета файлов
 parser_count = subparsers.add_parser('count', help="Count files in directory")
 parser_count.add_argument('folder', type=str, help="Folder name")
 parser_count.add_argument('-r', '--recursive', action='store_true', help="Count files recursively")
 
-# Сабпарсер поиска фалов по регулярному выражению
+# Subparser поиска фалов по регулярному выражению
 parser_search = subparsers.add_parser('search', help="Search for files by regex pattern")
 parser_search.add_argument('folder', type=str, help="Folder name")
 parser_search.add_argument('pattern', type=str, help="Regex pattern to match file names")
 
-# Сабпарсер генерации тестового набора файлов и папок
+# Subparser for adding creation date to filenames
+parser_add_date = subparsers.add_parser('add_date', help="Add creation date to filenames in directory")
+parser_add_date.add_argument('folder', type=str, help="Folder name")
+parser_add_date.add_argument('-r', '--recursive', action='store_true', help="Process files recursively")
+
+# Subparser for analysing folder sizes
+parser_analyse = subparsers.add_parser('analyse', help="Analyse folder sizes")
+parser_analyse.add_argument('folder', type=str, help="Folder name")
+
+# Subparser генерации тестового набора файлов и папок
 parser_gen = subparsers.add_parser('gentest', help="Generate test data in a folder")
 parser_gen.add_argument('folder', type=str, help="Folder name")
 parser_gen.add_argument('--count', type=int, default=5, help="Number of folders to create")
@@ -44,6 +53,11 @@ elif args.command == 'count':
 elif args.command == 'search':
     print(f"Searching for {args.pattern} in {args.folder} ...")
     print(f"{search_files(args.folder, args.pattern)}")
+elif args.command == 'add_date':
+    print(f"Adding file creation date for files in {args.folder} ...")
+    add_creation_date_to_filename(args.folder, args.recursive)
+elif args.command == 'analyse':
+    analyse_folder(args.folder)
 elif args.command == 'gentest':
     print(f"Generating test data in {args.folder} ...")
     generate_data(args.folder, args.count)

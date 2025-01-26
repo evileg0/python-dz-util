@@ -3,6 +3,8 @@ import os
 import random
 import string
 import re
+import datetime
+import math
 
 def copy_file(source_file, destination_folder):
     """
@@ -88,6 +90,91 @@ def search_files(folder, pattern):
     else:
         print(f"No files matching pattern '{pattern}' found in {folder}.")
         return None
+
+def add_creation_date_to_filename(folder, recursive=False):
+    """
+    Adds the creation date to the filenames in the specified folder.
+
+    :param folder: The folder to process.
+    :param recursive: Whether to process files recursively.
+    """
+    if not os.path.isdir(folder):
+        print(f"Folder {folder} does not exist.")
+        return
+
+    for root, dirs, files in os.walk(folder):
+        for file in files:
+            file_path = os.path.join(root, file)
+            creation_time = os.path.getctime(file_path)
+            creation_date = datetime.datetime.fromtimestamp(creation_time).strftime('%Y-%m-%d')
+            new_file_name = f"{creation_date}_{file}"
+            new_file_path = os.path.join(root, new_file_name)
+            os.rename(file_path, new_file_path)
+            print(f"Renamed {file_path} to {new_file_path}")
+
+        if not recursive:
+            break
+
+def analyse_folder(folder):
+    """
+    Analyses the specified folder and prints the sizes of all files and subfolders.
+
+    :param folder: The folder to analyse.
+    """
+    if not os.path.isdir(folder):
+        print(f"Folder {folder} does not exist.")
+        return
+
+    total_size = 0
+    sizes = []
+
+    for root, dirs, files in os.walk(folder):
+        for name in files:
+            file_path = os.path.join(root, name)
+            file_size = os.path.getsize(file_path)
+            total_size += file_size
+            sizes.append((file_path, file_size))
+
+        for dir_name in dirs:
+            dir_path = os.path.join(root, dir_name)
+            dir_size = get_folder_size(dir_path)
+            total_size += dir_size
+            sizes.append((dir_path, dir_size))
+
+        break  # Only analyse the top level
+
+    print(f"Full size: {format_size(total_size)}")
+    for path, size in sizes:
+        print(f"  - {os.path.basename(path)} {format_size(size)}")
+
+def get_folder_size(folder):
+    """
+    Gets the total size of the specified folder.
+
+    :param folder: The folder to get the size of.
+    :return: The total size of the folder in bytes.
+    """
+    total_size = 0
+    for root, dirs, files in os.walk(folder):
+        for name in files:
+            file_path = os.path.join(root, name)
+            total_size += os.path.getsize(file_path)
+    return total_size
+
+def format_size(size_bytes):
+    """
+    Formats the size in bytes to a human-readable string.
+
+    :param size_bytes: The size in bytes.
+    :return: The formatted size string.
+    """
+    if size_bytes == 0:
+        return "0B"
+    size_name = ("B", "KB", "MB", "GB", "TB")
+    i = int(math.floor(math.log(size_bytes, 1024)))
+    p = math.pow(1024, i)
+    s = round(size_bytes / p, 2)
+    return f"{s} {size_name[i]}"
 
 def generate_random_content(size_kb):
     """
