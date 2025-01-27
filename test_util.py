@@ -27,6 +27,13 @@ class TestUtil(unittest.TestCase):
     def test_count_files_recursive(self):
         self.assertEqual(15, count_files(test_path, recursive=True), f"Count: not 15 files")
 
+    def test_format_size(self):
+        self.assertEqual(format_size(0), "0B")
+        self.assertEqual(format_size(1024), "1.0 KB")
+        self.assertEqual(format_size(1048576), "1.0 MB")
+        self.assertEqual(format_size(1073741824), "1.0 GB")
+        self.assertEqual(format_size(1099511627776), "1.0 TB")
+
 def setUpModule():
     generate_data(test_path, 5)
 
