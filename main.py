@@ -6,9 +6,9 @@ parser = argparse.ArgumentParser()
 subparsers = parser.add_subparsers(dest="command")
 
 # Subparser for file copy
-parser_copy = subparsers.add_parser('copy', help="Copy file <from> to <destanation>")
+parser_copy = subparsers.add_parser('copy', help="Copy file <from> to <destination>")
 parser_copy.add_argument('filename', type=str, help="Source file")
-parser_copy.add_argument('destanation', type=str, help="Destanation folder")
+parser_copy.add_argument('destination', type=str, help="Destination folder")
 
 # Subparser for removing file
 parser_del = subparsers.add_parser('del', help="Delete file")
