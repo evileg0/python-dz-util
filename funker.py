@@ -113,7 +113,7 @@ def add_creation_date_to_filename(folder, recursive=False):
             print(f"Renamed {file_path} to {new_file_path}")
 
         if not recursive:
-            break
+            break # Only analyse the top level if not recursive
 
 def analyse_folder(folder):
     """
@@ -189,10 +189,12 @@ def generate_random_content(size_kb):
 def generate_data(destination_folder, count):
     """
     * For testing purposes *
-    Generate test data - files and folders
+    Generates test data - <count> number of folders with
+    <count>*files in each folder<count>
     Regenerates a folder content if exists
 
     :param destination_folder: Destanation folder
+    :param count: Number of folders to create
     """
     if os.path.exists(destination_folder):
         print(f"Test directory already exists, removing...")
@@ -212,5 +214,4 @@ def generate_data(destination_folder, count):
             with open(file_name, 'w') as file:
                 file.write(content)
 
-            #print(f"Created {file_name} with size {file_size_kb} KB.")
     print(f"Created total {count_files(destination_folder, recursive=True)} files in {count} folders")

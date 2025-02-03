@@ -12,9 +12,8 @@ class TestUtil(unittest.TestCase):
         pass
 
     def test_search_files_found(self):
-        # Rewrite this one for relative path
-        exp_result = ['F:\\tmp\\testdata\\folder3\\file3.txt', 'F:\\tmp\\testdata\\folder4\\file3.txt',
-                      'F:\\tmp\\testdata\\folder5\\file3.txt']
+        exp_result = [os.path.join(test_path, 'folder3\\file3.txt'), os.path.join(test_path, 'folder4\\file3.txt'),
+                      os.path.join(test_path, 'folder5\\file3.txt')]
         self.assertEqual(exp_result, search_files(test_path, "file3"), f"Search for existing files: not working")
 
     def test_search_files_not_found(self):
@@ -38,7 +37,7 @@ def setUpModule():
     generate_data(test_path, 5)
 
 def tearDownModule():
-    pass
+    shutil.rmtree(test_path)
 
 if __name__ == '__main__':
     unittest.main()
