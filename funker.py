@@ -200,7 +200,7 @@ def generate_data(destination_folder, count):
         print(f"Test directory already exists, removing...")
         shutil.rmtree(destination_folder)
 
-    os.mkdir(destination_folder)
+    os.makedirs(destination_folder)
 
     for i in range(1, count + 1):
         folder_name = os.path.join(destination_folder, f"folder{i}")
