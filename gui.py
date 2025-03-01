@@ -9,12 +9,18 @@ def main(page: ft.Page):
     copy_fpath = ft.Ref[ft.TextField]()
     copy_folder_path = ft.Ref[ft.TextField]()
     del_fpath = ft.Ref[ft.TextField]()
+    gen_folder_path = ft.Ref[ft.TextField]()
+    gen_slider_text = ft.Ref[ft.Text]()
+    gen_slider = ft.Ref[ft.Slider]()
 
     # Выбор файла
-    def pick_copy_folder_result(e: ft.FilePickerResultEvent):
-        if e.path:
-            copy_folder_path.current.value = e.path
-            page.update()
+    def pick_folder_result(tf: ft.TextField):
+        def on_result(e: ft.FilePickerResultEvent):
+            if e.path:
+                tf.current.value = e.path
+                page.update()
+
+        return on_result
 
     def picker_file_result(tf: ft.TextField):
         def on_result(e: ft.FilePickerResultEvent):
@@ -24,11 +30,16 @@ def main(page: ft.Page):
 
         return on_result
 
+    def on_gen_slider_change(e):
+        gen_slider_text.current.value = f"Текущее значение: {int(float(e.control.value))}"
+        page.update()
+
     # Пикеры
-    file_picker = ft.FilePicker(on_result=picker_file_result(copy_fpath))
-    folder_picker = ft.FilePicker(on_result=pick_copy_folder_result)
+    copy_file_picker = ft.FilePicker(on_result=picker_file_result(copy_fpath))
+    copy_folder_picker = ft.FilePicker(on_result=pick_folder_result(copy_folder_path))
     del_file_picker = ft.FilePicker(on_result=picker_file_result(del_fpath))
-    page.overlay.extend([file_picker, folder_picker,del_file_picker])
+    gen_folder_picker = ft.FilePicker(on_result=pick_folder_result(gen_folder_path))
+    page.overlay.extend([copy_file_picker, copy_folder_picker, del_file_picker, gen_folder_picker])
 
     # Табы
     tab_control = ft.Tabs(
@@ -46,7 +57,7 @@ def main(page: ft.Page):
                                 ft.ElevatedButton(
                                     "Выбрать файл",
                                     icon=ft.Icons.FILE_OPEN_ROUNDED,
-                                    on_click=lambda _: file_picker.pick_files(
+                                    on_click=lambda _: copy_file_picker.pick_files(
                                         allow_multiple=False,
                                         allowed_extensions=["*"]
                                     )
@@ -58,11 +69,11 @@ def main(page: ft.Page):
                         ft.Text("Выберите папку назначения:", size=14),
                         ft.Row(
                             [
-                                ft.TextField(ref=copy_folder_path, hint_text="Папка назвачения", read_only=True, expand=True),
+                                ft.TextField(ref=copy_folder_path, hint_text="Папка назначения", read_only=True, expand=True),
                                 ft.ElevatedButton(
                                     "Выбрать папку",
                                     icon=ft.Icons.FOLDER_OPEN,
-                                    on_click=lambda _: folder_picker.get_directory_path()
+                                    on_click=lambda _: copy_folder_picker.get_directory_path()
                                 ),
                             ],
                             alignment=ft.MainAxisAlignment.SPACE_BETWEEN
@@ -134,10 +145,33 @@ def main(page: ft.Page):
             ),
             ft.Tab(
                 text="Генерация",
-                content=ft.Container(
-                    content=ft.Text("Генерация файлов"),
-                    alignment=ft.alignment.center,
-                    expand=True
+                content=ft.Column(
+                    [
+                        ft.Text("Выберите папку для генерации файлов:", size=14),
+                        ft.Row(
+                            [
+                                ft.TextField(ref=gen_folder_path, hint_text="Папка назначения", read_only=True, expand=True),
+                                ft.ElevatedButton(
+                                    "Выбрать папку",
+                                    icon=ft.Icons.FOLDER_OPEN,
+                                    on_click=lambda _: gen_folder_picker.get_directory_path()
+                                ),
+                            ],
+                            alignment=ft.MainAxisAlignment.SPACE_BETWEEN
+                        ),
+                        ft.Divider(height=20, color="transparent"),
+                        ft.Text("Количество папок для генерации:", size=14),
+                        ft.Slider(ref=gen_slider, value=1, min=1, max=100, divisions=99, label="{value}", on_change=on_gen_slider_change),
+                        ft.Text(ref=gen_slider_text, value="Текущее значение: 1", size=14),
+                        ft.Divider(height=20, color="transparent"),
+                        ft.ElevatedButton(
+                            "Генерация",
+                            icon=ft.Icons.COPY ,
+                            on_click=lambda _: generate_data(gen_folder_path.current.value, int(gen_slider.current.value))
+                        ),
+                    ],
+                    alignment=ft.MainAxisAlignment.CENTER,
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER
                 )
             ),
         ],
