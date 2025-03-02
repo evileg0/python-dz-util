@@ -17,6 +17,8 @@ def main(page: ft.Page):
     search_col = ft.Ref[ft.Column]()
     data_folder_path = ft.Ref[ft.TextField]()
     data_checkbox = ft.Ref[ft.Checkbox]()
+    analyse_folder_path = ft.Ref[ft.TextField]()
+    analyse_col = ft.Ref[ft.Column]()
     gen_folder_path = ft.Ref[ft.TextField]()
     gen_slider_text = ft.Ref[ft.Text]()
     gen_slider = ft.Ref[ft.Slider]()
@@ -57,6 +59,14 @@ def main(page: ft.Page):
                 search_col.current.controls.append(ft.Text(value=res))
         page.update()
 
+    def analyse_result():
+        analyse_col.current.controls.clear()
+        a_result = analyse_folder(analyse_folder_path.current.value)
+        if a_result:
+            for res in a_result:
+                analyse_col.current.controls.append(ft.Text(value=res))
+        page.update()
+
     # Пикеры
     copy_file_picker = ft.FilePicker(on_result=picker_file_result(copy_fpath))
     copy_folder_picker = ft.FilePicker(on_result=pick_folder_result(copy_folder_path))
@@ -64,9 +74,10 @@ def main(page: ft.Page):
     count_folder_picker = ft.FilePicker(on_result=pick_folder_result(count_folder_path))
     search_folder_picker = ft.FilePicker(on_result=pick_folder_result(search_folder_path))
     data_folder_picker = ft.FilePicker(on_result=pick_folder_result(data_folder_path))
+    analyse_folder_picker = ft.FilePicker(on_result=pick_folder_result(analyse_folder_path))
     gen_folder_picker = ft.FilePicker(on_result=pick_folder_result(gen_folder_path))
     page.overlay.extend([copy_file_picker, copy_folder_picker, del_file_picker, count_folder_picker,
-                         search_folder_picker, gen_folder_picker, data_folder_picker])
+                         search_folder_picker, gen_folder_picker, data_folder_picker, analyse_folder_picker])
 
     # Табы
     tab_control = ft.Tabs(
@@ -242,10 +253,31 @@ def main(page: ft.Page):
             ),
             ft.Tab(
                 text="Анализ",
-                content=ft.Container(
-                    content=ft.Text("Анализ файлов"),
-                    alignment=ft.alignment.center,
-                    expand=True
+                content=ft.Column(
+                    [
+                        ft.Text("Выберите папку для анализа:", size=14),
+                        ft.Row(
+                            [
+                                ft.TextField(ref=analyse_folder_path, hint_text="Папка назначения", read_only=True, expand=True),
+                                ft.ElevatedButton(
+                                    "Выбрать папку",
+                                    icon=ft.Icons.FOLDER_OPEN,
+                                    on_click=lambda _: analyse_folder_picker.get_directory_path()
+                                ),
+                            ],
+                            alignment=ft.MainAxisAlignment.SPACE_BETWEEN
+                        ),
+                        ft.Divider(height=20, color="transparent"),
+                        ft.ElevatedButton(
+                            "Анализ",
+                            icon=ft.Icons.ANALYTICS_OUTLINED ,
+                            on_click=lambda _: analyse_result()
+                        ),
+                        ft.Text(value="Результаты анализа папки", size=14),
+                        ft.Column(ref=analyse_col, scroll=ft.ScrollMode.AUTO, height=200, expand=False),
+                    ],
+                    alignment=ft.MainAxisAlignment.CENTER,
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER
                 )
             ),
             ft.Tab(
