@@ -127,6 +127,7 @@ def analyse_folder(folder):
 
     total_size = 0
     sizes = []
+    result = []
 
     for root, dirs, files in os.walk(folder):
         for name in files:
@@ -144,8 +145,11 @@ def analyse_folder(folder):
         break  # Only analyse the top level
 
     print(f"Full size: {format_size(total_size)}")
+    result.append(f"Full size: {format_size(total_size)}")
     for path, size in sizes:
         print(f"  - {os.path.basename(path)} {format_size(size)}")
+        result.append(f"  - {os.path.basename(path)} {format_size(size)}")
+    return result
 
 def get_folder_size(folder):
     """
@@ -196,6 +200,10 @@ def generate_data(destination_folder, count):
     :param destination_folder: Destanation folder
     :param count: Number of folders to create
     """
+    if destination_folder == "":
+        print(f"Directory not set")
+        return
+
     if os.path.exists(destination_folder):
         print(f"Test directory already exists, removing...")
         shutil.rmtree(destination_folder)
