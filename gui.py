@@ -12,9 +12,16 @@ def main(page: ft.Page):
     count_folder_path = ft.Ref[ft.TextField]()
     count_checkbox = ft.Ref[ft.Checkbox]()
     count_text = ft.Ref[ft.Text]()
+    search_folder_path = ft.Ref[ft.TextField]()
+    search_pattern = ft.Ref[ft.TextField]()
+    search_col = ft.Ref[ft.Column]()
+    data_folder_path = ft.Ref[ft.TextField]()
+    data_checkbox = ft.Ref[ft.Checkbox]()
     gen_folder_path = ft.Ref[ft.TextField]()
     gen_slider_text = ft.Ref[ft.Text]()
     gen_slider = ft.Ref[ft.Slider]()
+
+
 
     # Выбор файла
     def pick_folder_result(tf: ft.TextField):
@@ -42,13 +49,24 @@ def main(page: ft.Page):
         count_text.current.value = f"Количество файлов: {count}"
         page.update()
 
+    def search_result():
+        search_col.current.controls.clear()
+        s_result = search_files(search_folder_path.current.value, search_pattern.current.value)
+        if s_result:
+            for res in s_result:
+                search_col.current.controls.append(ft.Text(value=res))
+        page.update()
+
     # Пикеры
     copy_file_picker = ft.FilePicker(on_result=picker_file_result(copy_fpath))
     copy_folder_picker = ft.FilePicker(on_result=pick_folder_result(copy_folder_path))
     del_file_picker = ft.FilePicker(on_result=picker_file_result(del_fpath))
     count_folder_picker = ft.FilePicker(on_result=pick_folder_result(count_folder_path))
+    search_folder_picker = ft.FilePicker(on_result=pick_folder_result(search_folder_path))
+    data_folder_picker = ft.FilePicker(on_result=pick_folder_result(data_folder_path))
     gen_folder_picker = ft.FilePicker(on_result=pick_folder_result(gen_folder_path))
-    page.overlay.extend([copy_file_picker, copy_folder_picker, del_file_picker, count_folder_picker, gen_folder_picker])
+    page.overlay.extend([copy_file_picker, copy_folder_picker, del_file_picker, count_folder_picker,
+                         search_folder_picker, gen_folder_picker, data_folder_picker])
 
     # Табы
     tab_control = ft.Tabs(
@@ -145,7 +163,7 @@ def main(page: ft.Page):
                             alignment=ft.MainAxisAlignment.SPACE_BETWEEN
                         ),
                         ft.Divider(height=20, color="transparent"),
-                        ft.Text("Рекурсивный подсчет во вложенных папаках", size=14),
+                        ft.Text("Рекурсивный подсчет во вложенных папках", size=14),
                         ft.Checkbox(ref=count_checkbox),
                         ft.Divider(height=20, color="transparent"),
                         ft.ElevatedButton(
@@ -161,16 +179,71 @@ def main(page: ft.Page):
             ),
             ft.Tab(
                 text="Поиск",
-                content=ft.Container(
-                    content=ft.Text("Поиск фалов"),
-                    alignment=ft.alignment.center,
-                    expand=True
+                content=ft.Column(
+                    [
+                        ft.Text("Выберите папку для поиска:", size=14),
+                        ft.Row(
+                            [
+                                ft.TextField(ref=search_folder_path, hint_text="Папка назначения", read_only=True, expand=True),
+                                ft.ElevatedButton(
+                                    "Выбрать папку",
+                                    icon=ft.Icons.FOLDER_OPEN,
+                                    on_click=lambda _: search_folder_picker.get_directory_path()
+                                ),
+                            ],
+                            alignment=ft.MainAxisAlignment.SPACE_BETWEEN
+                        ),
+                        ft.Divider(height=20, color="transparent"),
+                        ft.Text("Искать:", size=14),
+                        ft.TextField(ref=search_pattern, hint_text="Что искать", read_only=False),
+                        ft.Divider(height=20, color="transparent"),
+                        ft.ElevatedButton(
+                            "Поиск",
+                            icon=ft.Icons.SEARCH_ROUNDED ,
+                            on_click=lambda _: search_result()
+                        ),
+                        ft.Text(value="Результаты поиска", size=14),
+                        ft.Column(ref=search_col, scroll=ft.ScrollMode.AUTO, height=200, expand=False),
+                    ],
+                    alignment=ft.MainAxisAlignment.CENTER,
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER
                 )
             ),
             ft.Tab(
                 text="Дата",
+                content=ft.Column(
+                    [
+                        ft.Text("Выберите папку для маркировки фалов датами создания:", size=14),
+                        ft.Row(
+                            [
+                                ft.TextField(ref=data_folder_path, hint_text="Папка назначения", read_only=True, expand=True),
+                                ft.ElevatedButton(
+                                    "Выбрать папку",
+                                    icon=ft.Icons.FOLDER_OPEN,
+                                    on_click=lambda _: data_folder_picker.get_directory_path()
+                                ),
+                            ],
+                            alignment=ft.MainAxisAlignment.SPACE_BETWEEN
+                        ),
+                        ft.Divider(height=20, color="transparent"),
+                        ft.Text("Макркировать рекурсивно во вложенных папках", size=14),
+                        ft.Checkbox(ref=data_checkbox),
+                        ft.Divider(height=20, color="transparent"),
+                        ft.ElevatedButton(
+                            "Маркировать",
+                            icon=ft.Icons.DATE_RANGE_ROUNDED ,
+                            on_click=lambda _: add_creation_date_to_filename(data_folder_path.current.value,
+                                                                             data_checkbox.current.value)
+                        ),
+                    ],
+                    alignment=ft.MainAxisAlignment.CENTER,
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER
+                )
+            ),
+            ft.Tab(
+                text="Анализ",
                 content=ft.Container(
-                    content=ft.Text("Добавление даты к имени файлов"),
+                    content=ft.Text("Анализ файлов"),
                     alignment=ft.alignment.center,
                     expand=True
                 )
