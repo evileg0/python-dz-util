@@ -196,6 +196,10 @@ def generate_data(destination_folder, count):
     :param destination_folder: Destanation folder
     :param count: Number of folders to create
     """
+    if destination_folder == "":
+        print(f"Directory not set")
+        return
+
     if os.path.exists(destination_folder):
         print(f"Test directory already exists, removing...")
         shutil.rmtree(destination_folder)

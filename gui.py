@@ -9,6 +9,9 @@ def main(page: ft.Page):
     copy_fpath = ft.Ref[ft.TextField]()
     copy_folder_path = ft.Ref[ft.TextField]()
     del_fpath = ft.Ref[ft.TextField]()
+    count_folder_path = ft.Ref[ft.TextField]()
+    count_checkbox = ft.Ref[ft.Checkbox]()
+    count_text = ft.Ref[ft.Text]()
     gen_folder_path = ft.Ref[ft.TextField]()
     gen_slider_text = ft.Ref[ft.Text]()
     gen_slider = ft.Ref[ft.Slider]()
@@ -34,12 +37,18 @@ def main(page: ft.Page):
         gen_slider_text.current.value = f"Текущее значение: {int(float(e.control.value))}"
         page.update()
 
+    def count_result():
+        count = count_files(count_folder_path.current.value, count_checkbox.current.value)
+        count_text.current.value = f"Количество файлов: {count}"
+        page.update()
+
     # Пикеры
     copy_file_picker = ft.FilePicker(on_result=picker_file_result(copy_fpath))
     copy_folder_picker = ft.FilePicker(on_result=pick_folder_result(copy_folder_path))
     del_file_picker = ft.FilePicker(on_result=picker_file_result(del_fpath))
+    count_folder_picker = ft.FilePicker(on_result=pick_folder_result(count_folder_path))
     gen_folder_picker = ft.FilePicker(on_result=pick_folder_result(gen_folder_path))
-    page.overlay.extend([copy_file_picker, copy_folder_picker, del_file_picker, gen_folder_picker])
+    page.overlay.extend([copy_file_picker, copy_folder_picker, del_file_picker, count_folder_picker, gen_folder_picker])
 
     # Табы
     tab_control = ft.Tabs(
@@ -121,10 +130,33 @@ def main(page: ft.Page):
             ),
             ft.Tab(
                 text="Подсчет",
-                content=ft.Container(
-                    content=ft.Text("Подсчет файлов в папке"),
-                    alignment=ft.alignment.center,
-                    expand=True
+                content=ft.Column(
+                    [
+                        ft.Text("Выберите папку для подсчета фалов:", size=14),
+                        ft.Row(
+                            [
+                                ft.TextField(ref=count_folder_path, hint_text="Папка назначения", read_only=True, expand=True),
+                                ft.ElevatedButton(
+                                    "Выбрать папку",
+                                    icon=ft.Icons.FOLDER_OPEN,
+                                    on_click=lambda _: count_folder_picker.get_directory_path()
+                                ),
+                            ],
+                            alignment=ft.MainAxisAlignment.SPACE_BETWEEN
+                        ),
+                        ft.Divider(height=20, color="transparent"),
+                        ft.Text("Рекурсивный подсчет во вложенных папаках", size=14),
+                        ft.Checkbox(ref=count_checkbox),
+                        ft.Divider(height=20, color="transparent"),
+                        ft.ElevatedButton(
+                            "Посчитать",
+                            icon=ft.Icons.NUMBERS_ROUNDED ,
+                            on_click=lambda _: count_result()
+                        ),
+                        ft.Text(ref=count_text, value="Количество файлов: ", size=14),
+                    ],
+                    alignment=ft.MainAxisAlignment.CENTER,
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER
                 )
             ),
             ft.Tab(
